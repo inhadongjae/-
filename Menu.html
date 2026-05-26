@@ -4,177 +4,150 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>메뉴 추천</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
-      background: #f5f5f5;
-      color: #111;
-      min-height: 100vh;
-      overflow-x: hidden;
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f5; color: #111; min-height: 100vh; overflow-x: hidden;
     }
 
     /* 헤더 */
     .page-header {
-      background: #fff;
-      padding: 20px 24px 16px;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
+      background: #fff; padding: 16px 20px; border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
     }
-    .page-header h2 { font-size: 20px; font-weight: 500; }
+    .page-header h2 { font-size: 20px; font-weight: 600; }
     .header-right { display: flex; align-items: center; gap: 12px; position: relative; }
-    .icon-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; }
+    .icon-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 4px; }
 
     /* 드롭다운 */
     .dropdown {
-      display: none;
-      position: absolute;
-      top: 36px; right: 0;
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      z-index: 200;
-      min-width: 140px;
-      overflow: hidden;
+      display: none; position: absolute; top: 38px; right: 0;
+      background: #fff; border: 1px solid #eee; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.13); z-index: 200; min-width: 150px; overflow: hidden;
     }
     .dropdown.show { display: block; }
-    .dropdown-item { padding: 13px 18px; font-size: 15px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
+    .dropdown-item { padding: 13px 18px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f5f5f5; }
     .dropdown-item:last-child { border-bottom: none; }
     .dropdown-item:active { background: #f5f5f5; }
 
     /* 날짜바 */
-    .date-bar {
-      background: #fff;
-      padding: 10px 24px;
-      text-align: right;
-      font-size: 15px;
-      color: #555;
-      border-bottom: 1px solid #eee;
-    }
+    .date-bar { background: #fff; padding: 8px 20px; text-align: right; font-size: 13px; color: #777; border-bottom: 1px solid #eee; }
 
-    /* 추천 카드 고정 */
-    .recommend-fixed {
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      padding: 12px 16px;
-    }
-    .recommend-card {
-      background: #fff;
-      border-radius: 12px;
-      border: 2px solid #f6c90e;
-      padding: 14px 18px;
-    }
-    .recommend-header { font-size: 15px; font-weight: 600; color: #b8860b; margin-bottom: 8px; }
-    .recommend-sub { font-size: 13px; color: #888; margin-bottom: 6px; }
-    .recommend-empty { font-size: 13px; color: #aaa; }
-    .meal-items-sm { font-size: 13px; color: #444; line-height: 1.7; }
+    /* 추천 카드 */
+    .recommend-fixed { background: #fffdf0; border-bottom: 1px solid #f0e08c; padding: 10px 14px; }
+    .recommend-card { background: #fff; border-radius: 12px; border: 2px solid #f6c90e; padding: 12px 16px; }
+    .recommend-header { font-size: 14px; font-weight: 700; color: #a07800; margin-bottom: 6px; }
+    .recommend-sub { font-size: 12px; color: #888; margin-bottom: 4px; font-weight: 600; }
+    .recommend-empty { font-size: 12px; color: #aaa; line-height: 1.6; }
+    .meal-items-sm { font-size: 12px; color: #444; line-height: 1.7; }
 
     /* 슬라이더 */
-    .slider-wrap { overflow: hidden; width: 100%; }
-    .slider {
-      display: flex;
-      transition: transform 0.3s ease;
-      width: 300%;
-    }
-    .slide {
-      width: 33.333%;
-      flex-shrink: 0;
-      padding: 16px;
-      padding-bottom: 60px;
-    }
+    .slider-wrap { overflow: hidden; width: 100%; padding-bottom: 52px; }
+    .slider { display: flex; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); width: 300%; will-change: transform; }
+    .slide { width: 33.333%; flex-shrink: 0; padding: 14px 14px 0; }
 
     /* 식당 레이블 */
-    .canteen-label { font-size: 13px; color: #888; margin-bottom: 12px; font-weight: 500; }
+    .canteen-label { font-size: 13px; color: #888; margin-bottom: 12px; font-weight: 600; }
 
     /* 식사 카드 */
-    .meal-card {
-      background: #fff;
-      border-radius: 12px;
-      border: 1.5px solid #ddd;
-      padding: 18px 20px;
-      margin-bottom: 8px;
-    }
-    .meal-header { display: flex; align-items: center; margin-bottom: 10px; }
-    .meal-title { font-size: 15px; font-weight: 500; }
-    .meal-time { font-size: 12px; color: #888; margin-left: auto; }
-    .meal-items { font-size: 13px; color: #444; line-height: 1.8; }
-    .breakfast .meal-title { color: #e53935; }
-    .lunch .meal-title { color: #f57f17; }
-    .dinner .meal-title { color: #1565c0; }
+    .meal-card { background: #fff; border-radius: 12px; border: 1.5px solid #e8e8e8; padding: 16px 18px; margin-bottom: 8px; }
+    .meal-header { display: flex; align-items: center; margin-bottom: 8px; }
+    .meal-title { font-size: 14px; font-weight: 600; }
+    .meal-time { font-size: 11px; color: #999; margin-left: auto; }
+    .meal-items { font-size: 12px; color: #555; line-height: 1.8; }
+    .breakfast .meal-title { color: #c0392b; }
+    .lunch     .meal-title { color: #d35400; }
+    .dinner    .meal-title { color: #1a5276; }
 
-    /* 선호도 */
-    .pref-card {
-      background: #fff;
-      border-radius: 12px;
-      border: 1.5px solid #ddd;
-      padding: 18px 20px;
-      margin-bottom: 8px;
-    }
-    .pref-card-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; color: #333; }
-    .pref-empty { font-size: 14px; color: #aaa; text-align: center; padding: 16px 0; }
+    /* 선호도 카드 */
+    .pref-card { background: #fff; border-radius: 12px; border: 1.5px solid #e8e8e8; padding: 16px 18px; margin-bottom: 8px; }
+    .pref-card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #222; }
+    .pref-row { margin-bottom: 8px; }
+    .pref-row-title { font-size: 11px; color: #888; margin-bottom: 4px; display: block; font-weight: 600; }
+    .pref-empty { font-size: 13px; color: #bbb; text-align: center; padding: 14px 0; }
+
     .chip-inline {
-      display: inline-block; padding: 2px 10px; border-radius: 99px;
-      font-size: 12px; font-weight: 500; margin: 2px;
+      display: inline-block; padding: 2px 9px; border-radius: 99px;
+      font-size: 11px; font-weight: 500; margin: 2px 3px 4px 0;
       background: #e8f0fd; border: 1px solid #3182ce; color: #3182ce;
     }
-    .chip-inline.dc { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
-    .chip-inline.dislike { background: #fef3c7; border-color: #d97706; color: #d97706; }
-    .chip-inline.unavailable { background: #f3e8ff; border-color: #7c3aed; color: #7c3aed; }
+    .chip-inline.dc         { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+    .chip-inline.dislike    { background: #fef3c7; border-color: #d97706; color: #d97706; }
+    .chip-inline.unavailable{ background: #f3e8ff; border-color: #7c3aed; color: #7c3aed; }
+
     .pref-setting-btn {
-      width: 100%; padding: 12px; border: 1.5px solid #111;
-      border-radius: 8px; background: #fff; font-size: 15px; cursor: pointer; margin-top: 8px;
+      width: 100%; padding: 11px; border: 1.5px solid #222; border-radius: 8px;
+      background: #fff; font-size: 14px; font-family: inherit; cursor: pointer; margin-top: 8px;
     }
     .pref-setting-btn:active { background: #f0f0f0; }
 
+    /* 편집 패널 */
+    .edit-panel {
+      display: none; background: #fff; border-radius: 12px; border: 1.5px solid #222;
+      padding: 16px 18px; margin-top: 8px; margin-bottom: 8px;
+    }
+    .edit-panel.show { display: block; }
+    .form-row { margin-bottom: 14px; }
+    .form-label { font-size: 11px; font-weight: 700; color: #666; margin-bottom: 6px; display: block; }
+    .form-input {
+      width: 100%; height: 38px; padding: 0 10px; border: 1px solid #ddd;
+      border-radius: 7px; font-size: 13px; font-family: inherit; outline: none;
+    }
+    .form-input:focus { border-color: #3182ce; }
+    .chip-click {
+      padding: 5px 11px; border: 1px solid #ddd; border-radius: 99px; font-size: 12px;
+      font-family: inherit; background: #fff; cursor: pointer; display: inline-block;
+      margin: 2px; user-select: none;
+    }
+    .chip-click.sel-blue { background: #e8f0fd; border-color: #3182ce; color: #3182ce; font-weight: 600; }
+    .tag-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .tag-item { background: #f0f0f0; border-radius: 99px; padding: 3px 8px; font-size: 11px; display: flex; align-items: center; gap: 3px; }
+    .tag-item button { border: none; background: none; color: #888; cursor: pointer; font-weight: bold; }
+
+    /* 시간표 */
+    .timetable { width: 100%; border-collapse: collapse; margin-top: 4px; table-layout: fixed; }
+    .timetable th { background: #f7f7f7; font-size: 11px; padding: 5px 2px; border: 1px solid #ddd; text-align: center; font-weight: 600; }
+    .timetable td { border: 1px solid #ddd; height: 24px; cursor: pointer; }
+    .timetable td.time-lbl { font-size: 9px; color: #bbb; text-align: right; padding-right: 4px; cursor: default; background: #fafafa; width: 36px; }
+    .timetable td.blocked { background: #c5b8ff; }
+
     /* 하단 점 */
     .dots {
-      position: fixed;
-      bottom: 16px; left: 0; right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      z-index: 10;
+      position: fixed; bottom: 0; left: 0; right: 0; height: 48px;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      z-index: 50; background: rgba(245,245,245,0.93); backdrop-filter: blur(6px);
+      border-top: 1px solid #e8e8e8;
     }
-    .dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: #ddd;
-      transition: background 0.2s;
-      cursor: pointer;
-    }
-    .dot.active { background: #3182ce; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; transition: all 0.2s; cursor: pointer; }
+    .dot.active { background: #3182ce; transform: scale(1.3); }
 
     /* 업로드 모달 */
     .modal-overlay {
-      display: none; position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4); z-index: 300;
-      align-items: center; justify-content: center;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-end; justify-content: center;
     }
     .modal-overlay.show { display: flex; }
-    .modal { background: #fff; border-radius: 16px; padding: 28px 24px; width: 88%; }
-    .modal h3 { font-size: 18px; font-weight: 500; margin-bottom: 8px; }
-    .modal p { font-size: 13px; color: #888; margin-bottom: 20px; }
-    .upload-area {
-      border: 2px dashed #ccc; border-radius: 10px; padding: 32px 16px;
-      text-align: center; cursor: pointer; margin-bottom: 20px;
-    }
-    .upload-area.has-image { border-color: #2e7d32; padding: 8px; }
-    .upload-icon { font-size: 36px; margin-bottom: 8px; }
-    .upload-text { font-size: 14px; color: #888; }
-    .upload-area img { width: 100%; border-radius: 8px; display: none; }
-    .upload-area.has-image img { display: block; }
-    .upload-area.has-image .upload-icon,
-    .upload-area.has-image .upload-text { display: none; }
+    .modal { background: #fff; border-radius: 20px 20px 0 0; padding: 26px 20px 40px; width: 100%; max-width: 480px; animation: slideUp 0.28s ease; }
+    @keyframes slideUp { from { transform: translateY(60px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    .modal h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .modal p { font-size: 12px; color: #999; margin-bottom: 16px; line-height: 1.5; }
+    .upload-area { border: 2px dashed #ccc; border-radius: 12px; padding: 22px 12px; text-align: center; cursor: pointer; margin-bottom: 16px; }
+    .upload-icon { font-size: 30px; margin-bottom: 6px; }
+    .upload-text { font-size: 12px; color: #777; line-height: 1.5; }
     .modal-btns { display: flex; gap: 10px; }
-    .modal-btn { flex: 1; padding: 12px; border: 1.5px solid #111; border-radius: 8px; background: #fff; font-size: 15px; cursor: pointer; }
-    .modal-btn.confirm { background: #111; color: #fff; }
-    .modal-btn.confirm:disabled { opacity: 0.35; cursor: not-allowed; }
-    .modal-btn:active { opacity: 0.8; }
+    .modal-btn { flex: 1; padding: 12px; border: 1.5px solid #222; border-radius: 9px; background: #fff; font-size: 14px; font-family: inherit; cursor: pointer; }
+    .modal-btn.confirm { background: #111; color: #fff; border-color: #111; }
+
+    /* 토스트 */
+    .toast {
+      position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%) translateY(10px);
+      background: #222; color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 99px;
+      z-index: 500; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
@@ -182,12 +155,12 @@
   <div class="page-header">
     <h2>메뉴 추천</h2>
     <div class="header-right">
-      <button class="icon-btn" onclick="location.href='index.html'">
+      <button class="icon-btn" onclick="location.href='index.html'" title="홈">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H15v-5h-6v5H4a1 1 0 0 1-1-1V9.5z"/>
         </svg>
       </button>
-      <button class="icon-btn" onclick="toggleDropdown()">
+      <button class="icon-btn" onclick="toggleDropdown()" title="메뉴">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="6" x2="21" y2="6"/>
           <line x1="3" y1="12" x2="21" y2="12"/>
@@ -195,33 +168,83 @@
         </svg>
       </button>
       <div class="dropdown" id="dropdown">
-        <div class="dropdown-item" onclick="location.href='timetable.html'">내 시간표</div>
-        <div class="dropdown-item" onclick="location.href='preference.html'">선호도 설정</div>
-        <div class="dropdown-item" onclick="openUploadModal()">메뉴 업로드</div>
+        <div class="dropdown-item" onclick="openSettingPanel('time')">⏰ 내 시간표</div>
+        <div class="dropdown-item" onclick="openSettingPanel('pref')">❤️ 선호도 설정</div>
+        <div class="dropdown-item" onclick="openUploadModal()">📄 메뉴 업로드</div>
       </div>
     </div>
   </div>
 
   <div class="date-bar" id="date-bar"></div>
 
-  <!-- 추천 카드 고정 -->
   <div class="recommend-fixed">
     <div class="recommend-card">
-      <div class="recommend-header">⭐ 추천</div>
-      <div id="recommend-content"></div>
+      <div class="recommend-header">⭐ 오늘의 추천</div>
+      <div id="recommend-content">
+        <div class="recommend-empty">좌우로 스와이프해서 식당 메뉴를 확인하세요.</div>
+      </div>
     </div>
   </div>
 
-  <!-- 슬라이더 -->
-  <div class="slider-wrap">
+  <div class="slider-wrap" id="slider-wrap">
     <div class="slider" id="slider">
 
-      <!-- 슬라이드 0: 내 메뉴 선호도 -->
+      <!-- 슬라이드 0: 선호도 -->
       <div class="slide">
         <div class="pref-card">
           <div class="pref-card-title">내 메뉴 선호도</div>
-          <div id="pref-body"></div>
-          <button class="pref-setting-btn" onclick="location.href='preference.html'">설정하기</button>
+          <div id="pref-body"><div class="pref-empty">설정하기를 눌러 선호도를 등록하세요.</div></div>
+          <button class="pref-setting-btn" onclick="toggleSettingPanel()">⚙️ 설정하기</button>
+        </div>
+
+        <div class="edit-panel" id="edit-panel">
+          <div class="form-row">
+            <label class="form-label">선호 식사 형태</label>
+            <div id="type-chips">
+              <span class="chip-click" data-key="likedTypes" onclick="clickChip(this)">한식</span>
+              <span class="chip-click" data-key="likedTypes" onclick="clickChip(this)">양식</span>
+              <span class="chip-click" data-key="likedTypes" onclick="clickChip(this)">중식</span>
+              <span class="chip-click" data-key="likedTypes" onclick="clickChip(this)">일식</span>
+              <span class="chip-click" data-key="likedTypes" onclick="clickChip(this)">분식</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">좋아하는 재료 / 메뉴</label>
+            <div id="cuisine-chips">
+              <span class="chip-click" data-key="likedCuisines" onclick="clickChip(this)">밥</span>
+              <span class="chip-click" data-key="likedCuisines" onclick="clickChip(this)">면</span>
+              <span class="chip-click" data-key="likedCuisines" onclick="clickChip(this)">고기</span>
+              <span class="chip-click" data-key="likedCuisines" onclick="clickChip(this)">해산물</span>
+              <span class="chip-click" data-key="likedCuisines" onclick="clickChip(this)">국물</span>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">알레르기 / 차단 성분</label>
+            <div style="display:flex;gap:6px;">
+              <input class="form-input" id="alg-input" placeholder="예: 우유, 새우" style="flex:1;"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addTag();}">
+              <button onclick="addTag()" style="padding:0 12px;background:#fff;border:1px solid #333;border-radius:7px;font-size:12px;font-family:inherit;cursor:pointer;">추가</button>
+            </div>
+            <div class="tag-container" id="alg-tags"></div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">이용 불가 시간대</label>
+            <select class="form-input" id="unavailable-select" onchange="changeUnavailTime(this)" style="padding:0 8px;">
+              <option value="">없음</option>
+              <option value="아침">🌅 아침</option>
+              <option value="점심">☀️ 점심</option>
+              <option value="저녁">🌙 저녁</option>
+            </select>
+          </div>
+          <div class="form-row" id="timetable-section">
+            <label class="form-label">수업 시간표 차단 (탭/드래그로 선택)</label>
+            <table class="timetable">
+              <thead><tr><th></th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead>
+              <tbody id="mini-tt-body"></tbody>
+            </table>
+            <div style="font-size:10px;color:#aaa;margin-top:4px;">보라색 = 수업 있음 (해당 식사 추천 제외)</div>
+          </div>
+          <button class="pref-setting-btn" onclick="toggleSettingPanel()" style="background:#111;color:#fff;border-color:#111;margin-top:6px;">✅ 설정 완료</button>
         </div>
       </div>
 
@@ -236,198 +259,482 @@
         <div class="canteen-label">🏢 교직원 식당</div>
         <div id="staff-meals"></div>
       </div>
-
     </div>
   </div>
 
-  <!-- 하단 점 -->
   <div class="dots">
     <div class="dot active" id="dot-0" onclick="goToSlide(0)"></div>
-    <div class="dot" id="dot-1" onclick="goToSlide(1)"></div>
-    <div class="dot" id="dot-2" onclick="goToSlide(2)"></div>
+    <div class="dot"        id="dot-1" onclick="goToSlide(1)"></div>
+    <div class="dot"        id="dot-2" onclick="goToSlide(2)"></div>
   </div>
 
   <!-- 업로드 모달 -->
   <div class="modal-overlay" id="upload-modal" onclick="closeModalOutside(event)">
     <div class="modal">
-      <h3>주간 메뉴 업로드</h3>
-      <p>메뉴 이미지를 업로드하면 자동으로 식단이 분석됩니다. (추후 연결 예정)</p>
-      <div class="upload-area" id="upload-area" onclick="triggerFileInput()">
-        <div class="upload-icon">📷</div>
-        <div class="upload-text">이미지를 탭하여 업로드</div>
-        <img id="preview-img" src="" alt="미리보기" />
+      <h3>📄 주간 CSV 식단표 업로드</h3>
+      <p>크롤링 파일(inha_staff_menu_playwright.csv)을 선택하면 주간 식단이 자동으로 연동됩니다.</p>
+      <div class="upload-area" onclick="triggerFileInput()">
+        <div class="upload-icon">📋</div>
+        <div class="upload-text" id="csv-status-label">이곳을 탭하여 CSV 파일을 선택하세요</div>
       </div>
-      <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleFile(event)" />
+      <input type="file" id="file-input" accept=".csv,text/csv" style="display:none;" onchange="importCsv(event)" />
       <div class="modal-btns">
         <button class="modal-btn" onclick="closeUploadModal()">취소</button>
-        <button class="modal-btn confirm" id="confirm-btn" disabled onclick="confirmUpload()">업로드</button>
+        <button class="modal-btn confirm" onclick="closeUploadModal()">확인</button>
       </div>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <script>
+  // ────────────────────────────────────────────
+  // 상수
+  // ────────────────────────────────────────────
+  const ALLERGY_RULES = {
+    '우유'    : ['우유','치즈','버터','크림','요거트','요구르트','라떼'],
+    '토마토'  : ['토마토','케찹','케첩'],
+    '난류'    : ['달걀','계란','에그','스크램블'],
+    '돼지고기': ['돼지','삼겹살','제육','돈육','돈까스','햄','베이컨'],
+    '글루텐'  : ['밀가루','빵','면','파스타','국수','우동'],
+    '새우'    : ['새우'],
+    '땅콩'    : ['땅콩','피넛']
+  };
+
+  const DEFAULT_DORM = [
+    { type:'breakfast', title:'아침', emoji:'🌅', time:'07:30~09:00', items:'모닝브레드&잼, 스크램블에그, 계절과일,\n그린샐러드&드레싱, 시리얼&우유' },
+    { type:'lunch',     title:'점심', emoji:'☀️', time:'11:30~13:30', items:'소고기콩나물밥&양념장, 미역국,\n청양닭강정&케찹, 마늘쫑햄볶음,\n실곤약야채무침, 포기김치' },
+    { type:'dinner',    title:'저녁', emoji:'🌙', time:'17:30~19:30', items:'자장덮밥, 달걀국, 칠리탕수육, 연유꽃빵, 파김치' }
+  ];
+  const DEFAULT_STAFF = [
+    { type:'breakfast', title:'아침', emoji:'🌅', time:'07:30~09:00', items:'토스트, 오렌지주스, 요거트, 샐러드' },
+    { type:'lunch',     title:'점심', emoji:'☀️', time:'11:30~13:30', items:'된장찌개, 제육볶음, 시금치나물, 깍두기, 밥' },
+    { type:'dinner',    title:'저녁', emoji:'🌙', time:'17:30~19:30', items:'김치찌개, 생선구이, 콩나물무침, 배추김치, 밥' }
+  ];
+
+  const DEFAULT_PREFS = { likedTypes:[], likedCuisines:[], allergies:[], unavailableTime:'', blockedSlots:{} };
+
+  // ────────────────────────────────────────────
+  // 상태
+  // ────────────────────────────────────────────
+  let prefs        = JSON.parse(JSON.stringify(DEFAULT_PREFS));
+  let currentSlide = 0;
+  let isTtDrag     = false;
+  let ttDragVal    = null;
+
+  // ────────────────────────────────────────────
+  // 초기화
+  // ────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
     // 날짜
-    const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const today = new Date();
+    const W = ['일','월','화','수','목','금','토'];
+    const d = new Date();
     document.getElementById('date-bar').textContent =
-      (today.getMonth() + 1) + '월 ' + today.getDate() + '일 ' + days[today.getDay()] + '요일';
+      `${d.getMonth()+1}월 ${d.getDate()}일 ${W[d.getDay()]}요일`;
 
-    // 임시 메뉴 데이터
-    const dormMeals = [
-      { type: 'breakfast', title: '아침', emoji: '🌅', time: '07:30~09:00', items: '모닝브래드종&잼, 스크램블에그, 계절 과일,\n그린샐러드&드레싱, 시리얼&우유' },
-      { type: 'lunch', title: '점심', emoji: '☀️', time: '11:30~13:30', items: '소고기콩나물밥&양념장, 미역국,\n청양돌그함땅&케찹, 마늘쫑햄볶음,\n실곤약야채무침, 포기김치' },
-      { type: 'dinner', title: '저녁', emoji: '🌙', time: '17:30~19:30', items: '자장덮밥, 달걀국, 칠리탕수육, 연유꽃빵,\n파김치' }
-    ];
-    const staffMeals = [
-      { type: 'breakfast', title: '아침', emoji: '🌅', time: '07:30~09:00', items: '토스트, 오렌지주스, 요거트, 샐러드' },
-      { type: 'lunch', title: '점심', emoji: '☀️', time: '11:30~13:30', items: '된장찌개, 제육볶음, 시금치나물,\n깍두기, 밥' },
-      { type: 'dinner', title: '저녁', emoji: '🌙', time: '17:30~19:30', items: '김치찌개, 생선구이, 콩나물무침,\n배추김치, 밥' }
-    ];
+    // 저장된 선호도 (구 키 'preference'도 호환)
+    try {
+      const raw = localStorage.getItem('inha_pref') || localStorage.getItem('preference');
+      if (raw) prefs = Object.assign(JSON.parse(JSON.stringify(DEFAULT_PREFS)), JSON.parse(raw));
+    } catch(e) {}
 
-    // 식당별 추천 (기숙사-아침, 교직원-저녁)
-    const recommendations = {
-      0: null,
-      1: dormMeals[0],
-      2: staffMeals[2],
+    buildTimetable();
+    syncEditorUI();
+    refreshPrefDash();
+    renderMenus();
+    goToSlide(0);
+  });
+
+  function save() {
+    try { localStorage.setItem('inha_pref', JSON.stringify(prefs)); } catch(e) {}
+  }
+
+  // ────────────────────────────────────────────
+  // 선호도 대시보드
+  // ────────────────────────────────────────────
+  function refreshPrefDash() {
+    const el = document.getElementById('pref-body');
+    let html = '';
+    if (prefs.likedTypes.length)
+      html += row('선호 형태', prefs.likedTypes.map(v=>`<span class="chip-inline">${v}</span>`).join(''));
+    if (prefs.likedCuisines.length)
+      html += row('좋아하는 메뉴', prefs.likedCuisines.map(v=>`<span class="chip-inline">${v}</span>`).join(''));
+    if (prefs.allergies.length)
+      html += row('알레르기 차단', prefs.allergies.map(v=>`<span class="chip-inline dc">🚫 ${v}</span>`).join(''));
+    if (prefs.unavailableTime) {
+      const em = {'아침':'🌅','점심':'☀️','저녁':'🌙'};
+      html += row('이용 불가', `<span class="chip-inline unavailable">${em[prefs.unavailableTime]||''} ${prefs.unavailableTime}</span>`);
+    }
+    el.innerHTML = html || '<div class="pref-empty">등록된 선호도가 없습니다.</div>';
+  }
+  function row(label, chips) {
+    return `<div class="pref-row"><span class="pref-row-title">${label}</span>${chips}</div>`;
+  }
+
+  // ────────────────────────────────────────────
+  // 편집 패널 열기/닫기
+  // ────────────────────────────────────────────
+  function toggleSettingPanel() {
+    const p = document.getElementById('edit-panel');
+    const opening = !p.classList.contains('show');
+    p.classList.toggle('show');
+    if (opening) { syncEditorUI(); }
+    else { refreshPrefDash(); updateRecommend(); }
+  }
+
+  function openSettingPanel(mode) {
+    closeDropdown();
+    const p = document.getElementById('edit-panel');
+    p.classList.add('show');
+    syncEditorUI();
+    goToSlide(0);
+    setTimeout(() => {
+      const t = mode==='time' ? document.getElementById('timetable-section') : p;
+      t && t.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 320);
+  }
+
+  function syncEditorUI() {
+    document.querySelectorAll('#type-chips .chip-click').forEach(c =>
+      c.classList.toggle('sel-blue', prefs.likedTypes.includes(c.innerText.trim())));
+    document.querySelectorAll('#cuisine-chips .chip-click').forEach(c =>
+      c.classList.toggle('sel-blue', prefs.likedCuisines.includes(c.innerText.trim())));
+    document.getElementById('unavailable-select').value = prefs.unavailableTime || '';
+    renderAlgTags();
+  }
+
+  function renderAlgTags() {
+    document.getElementById('alg-tags').innerHTML = prefs.allergies.map(a =>
+      `<div class="tag-item">${esc(a)}<button onclick="removeTag('${esc(a)}')">×</button></div>`
+    ).join('');
+  }
+
+  // ────────────────────────────────────────────
+  // 칩 / 태그
+  // ────────────────────────────────────────────
+  function clickChip(el) {
+    const key = el.dataset.key;
+    const val = el.innerText.trim();
+    if (!prefs[key]) return;
+    if (prefs[key].includes(val)) prefs[key] = prefs[key].filter(i=>i!==val);
+    else prefs[key].push(val);
+    el.classList.toggle('sel-blue', prefs[key].includes(val));
+    save();
+  }
+
+  function addTag() {
+    const input = document.getElementById('alg-input');
+    const vals  = input.value.split(/[,，、]/).map(v=>v.trim()).filter(Boolean);
+    vals.forEach(v => { if (!prefs.allergies.includes(v)) prefs.allergies.push(v); });
+    input.value = '';
+    save();
+    renderAlgTags();
+  }
+
+  function removeTag(val) {
+    prefs.allergies = prefs.allergies.filter(i=>i!==val);
+    save();
+    renderAlgTags();
+    refreshPrefDash();
+  }
+
+  function changeUnavailTime(el) {
+    prefs.unavailableTime = el.value;
+    save();
+  }
+
+  // ────────────────────────────────────────────
+  // 시간표 (터치 + 마우스 드래그 완벽 지원)
+  // ────────────────────────────────────────────
+  function buildTimetable() {
+    const SLOTS = ['8:30','12:00','17:30'];
+    const DAYS  = ['월','화','수','목','금'];
+    const tbody = document.getElementById('mini-tt-body');
+    tbody.innerHTML = SLOTS.map(s => `<tr>
+      <td class="time-lbl">${s}</td>
+      ${DAYS.map(d => {
+        const on = prefs.blockedSlots[d] && prefs.blockedSlots[d][s];
+        return `<td class="${on?'blocked':''}" data-d="${d}" data-s="${s}"></td>`;
+      }).join('')}
+    </tr>`).join('');
+
+    // 마우스
+    tbody.addEventListener('mousedown', e => {
+      const td = e.target.closest('td[data-d]'); if(!td) return;
+      isTtDrag=true; ttDragVal=!td.classList.contains('blocked'); toggleCell(td);
+    });
+    tbody.addEventListener('mouseover', e => {
+      if(!isTtDrag) return;
+      const td = e.target.closest('td[data-d]'); if(td) toggleCell(td, ttDragVal);
+    });
+    document.addEventListener('mouseup', ()=>{ isTtDrag=false; ttDragVal=null; });
+
+    // 터치 (핵심: passive:false 로 스크롤 막기)
+    tbody.addEventListener('touchstart', e => {
+      const td = e.target.closest('td[data-d]'); if(!td) return;
+      isTtDrag=true; ttDragVal=!td.classList.contains('blocked'); toggleCell(td);
+      e.preventDefault();
+    }, { passive:false });
+    tbody.addEventListener('touchmove', e => {
+      if(!isTtDrag) return;
+      const t = e.touches[0];
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const td = el && el.closest('td[data-d]'); if(td) toggleCell(td, ttDragVal);
+      e.preventDefault();
+    }, { passive:false });
+    document.addEventListener('touchend', ()=>{ isTtDrag=false; ttDragVal=null; });
+  }
+
+  function toggleCell(td, force) {
+    const d=td.dataset.d, s=td.dataset.s; if(!d||!s) return;
+    const val = force!==undefined ? force : !td.classList.contains('blocked');
+    if (!prefs.blockedSlots[d]) prefs.blockedSlots[d]={};
+    prefs.blockedSlots[d][s]=val;
+    td.classList.toggle('blocked', val);
+    save();
+  }
+
+  // ────────────────────────────────────────────
+  // 식단 렌더링
+  // ────────────────────────────────────────────
+  function renderMenus() {
+    let dorm=DEFAULT_DORM, staff=DEFAULT_STAFF;
+    try {
+      const raw = localStorage.getItem('inha_menu_db');
+      if (raw) {
+        const db = JSON.parse(raw);
+        const KR = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+        let key  = KR[new Date().getDay()];
+        if (key==='일요일'||key==='토요일') key='월요일';
+        if (db[key]) {
+          const day = db[key];
+          const build = (excl) => {
+            const r=[];
+            if(day.아침) r.push({type:'breakfast',title:'아침',emoji:'🌅',time:day.아침.시간||'07:30~09:00',items:day.아침.메뉴.join(', ')});
+            if(day.점심){
+              const lines=[];
+              Object.keys(day.점심).forEach(cn=>{ if(cn===excl) return; lines.push(`[${cn}] `+day.점심[cn].메뉴.join(' · ')); });
+              r.push({type:'lunch',title:'점심',emoji:'☀️',time:'11:30~13:30',items:lines.join('\n')||'메뉴 정보 없음'});
+            }
+            if(day.저녁) r.push({type:'dinner',title:'저녁',emoji:'🌙',time:day.저녁.시간||'17:30~19:30',items:day.저녁.메뉴.join(', ')});
+            return r;
+          };
+          dorm=build(null); staff=build('마르쉐프');
+        }
+      }
+    } catch(e) {}
+    inject('dorm-meals',  dorm);
+    inject('staff-meals', staff);
+  }
+
+  function inject(id, arr) {
+    document.getElementById(id).innerHTML = arr.map(m=>`
+      <div class="meal-card ${m.type}">
+        <div class="meal-header">
+          <span class="meal-title">${m.emoji} ${m.title}</span>
+          <span class="meal-time">${m.time}</span>
+        </div>
+        <div class="meal-items">${esc(m.items).replace(/\n/g,'<br>')}</div>
+      </div>`).join('');
+  }
+
+  // ────────────────────────────────────────────
+  // 추천 알고리즘
+  // ────────────────────────────────────────────
+  function updateRecommend() {
+    const box = document.getElementById('recommend-content');
+    if (currentSlide===0) {
+      box.innerHTML='<div class="recommend-empty">← 식당 탭으로 이동하면 맞춤 추천을 볼 수 있어요.</div>';
+      return;
+    }
+    const cid   = currentSlide===1 ? 'dorm-meals' : 'staff-meals';
+    const cards = document.getElementById(cid).querySelectorAll('.meal-card');
+    if (!cards.length) { box.innerHTML='<div class="recommend-empty">식단 정보가 없습니다.</div>'; return; }
+
+    const W2=['일','월','화','수','목','금','토'];
+    const dw  = W2[new Date().getDay()];
+    const day = (dw==='일'||dw==='토') ? '월' : dw;
+    const SLOTMAP = { '아침':'8:30','점심':'12:00','저녁':'17:30' };
+
+    let best=null, bestScore=-Infinity, reason='';
+
+    cards.forEach(card => {
+      const title = card.querySelector('.meal-title').innerText;
+      const items = card.querySelector('.meal-items').innerText;
+      const time  = card.querySelector('.meal-time').innerText;
+      const type  = title.includes('아침')?'아침': title.includes('점심')?'점심':'저녁';
+
+      let score=0, skip=false, why='';
+
+      // 1. 이용 불가 시간대
+      if (prefs.unavailableTime && type===prefs.unavailableTime) { skip=true; why=`이용 불가(${type})`; }
+
+      // 2. 수업 시간표 차단
+      if (!skip) {
+        const sl = SLOTMAP[type];
+        if (prefs.blockedSlots[day]&&prefs.blockedSlots[day][sl]) { skip=true; why='수업 시간 겹침'; }
+      }
+
+      // 3. 알레르기
+      if (!skip) {
+        for (const alg of prefs.allergies) {
+          const kws = ALLERGY_RULES[alg]||[alg];
+          if (kws.some(k=>items.includes(k))) { skip=true; why=`알레르기[${alg}]`; break; }
+        }
+      }
+
+      if (!skip) {
+        prefs.likedTypes.forEach(t=>{
+          if(items.includes(t)||(t==='한식'&&(items.includes('밥')||items.includes('찌개')||items.includes('나물')))) score+=3;
+        });
+        prefs.likedCuisines.forEach(c=>{ if(items.includes(c)) score+=5; });
+        if (score>=0 && score>bestScore) { bestScore=score; best={title,items,time}; }
+      } else {
+        if (!best) reason=why;
+      }
+    });
+
+    if (best) {
+      box.innerHTML=`<div class="recommend-sub">${best.title} · ${best.time}</div>
+        <div class="meal-items-sm">${esc(best.items).replace(/\n/g,'<br>')}</div>`;
+    } else {
+      box.innerHTML=`<div class="recommend-empty">🔴 추천 불가 — ${reason||'모든 식사가 차단됨'}</div>`;
+    }
+  }
+
+  // ────────────────────────────────────────────
+  // 슬라이더
+  // ────────────────────────────────────────────
+  function goToSlide(idx) {
+    if (idx<0||idx>2) return;
+    currentSlide=idx;
+    document.getElementById('slider').style.transform=`translateX(-${idx*33.333}%)`;
+    for(let i=0;i<3;i++) document.getElementById('dot-'+i).classList.toggle('active',i===idx);
+    updateRecommend();
+  }
+
+  // 터치 스와이프 (수직 스크롤 방해 안 함)
+  let tStartX=0, tStartY=0, tHoriz=null;
+  const sw = document.getElementById('slider-wrap');
+  sw.addEventListener('touchstart', e=>{ tStartX=e.touches[0].clientX; tStartY=e.touches[0].clientY; tHoriz=null; },{passive:true});
+  sw.addEventListener('touchmove', e=>{
+    if(tHoriz===null){ const dx=Math.abs(e.touches[0].clientX-tStartX),dy=Math.abs(e.touches[0].clientY-tStartY); tHoriz=dx>dy; }
+    if(tHoriz) e.preventDefault();
+  },{passive:false});
+  sw.addEventListener('touchend', e=>{
+    if(!tHoriz) return;
+    const d=tStartX-e.changedTouches[0].clientX;
+    if(Math.abs(d)<45) return;
+    if(d>0) goToSlide(currentSlide+1); else goToSlide(currentSlide-1);
+  },{passive:true});
+
+  // 마우스 드래그
+  let mStartX=0, mDrag=false;
+  sw.addEventListener('mousedown', e=>{ mStartX=e.clientX; mDrag=true; });
+  sw.addEventListener('mouseup',   e=>{ if(!mDrag) return; mDrag=false; const d=mStartX-e.clientX; if(Math.abs(d)<50) return; if(d>0) goToSlide(currentSlide+1); else goToSlide(currentSlide-1); });
+  sw.addEventListener('mouseleave',()=>{ mDrag=false; });
+
+  // ────────────────────────────────────────────
+  // 드롭다운
+  // ────────────────────────────────────────────
+  function toggleDropdown() { document.getElementById('dropdown').classList.toggle('show'); }
+  function closeDropdown()  { document.getElementById('dropdown').classList.remove('show'); }
+  document.addEventListener('click', e=>{ if(!e.target.closest('.header-right')) closeDropdown(); });
+
+  // ────────────────────────────────────────────
+  // 모달
+  // ────────────────────────────────────────────
+  function openUploadModal()  { closeDropdown(); document.getElementById('upload-modal').classList.add('show'); }
+  function closeUploadModal() { document.getElementById('upload-modal').classList.remove('show'); }
+  function closeModalOutside(e) { if(e.target===document.getElementById('upload-modal')) closeUploadModal(); }
+  function triggerFileInput() { document.getElementById('file-input').click(); }
+
+  // ────────────────────────────────────────────
+  // 토스트
+  // ────────────────────────────────────────────
+  let toastT=null;
+  function toast(msg) {
+    const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600);
+  }
+
+  // ────────────────────────────────────────────
+  // CSV 파서 (UTF-8 / EUC-KR 자동 감지)
+  // ────────────────────────────────────────────
+  function importCsv(e) {
+    const file = e.target.files[0]; if(!file) return;
+    e.target.value='';
+
+    const parse = (text) => {
+      const lines = text.trim().split(/\r?\n/);
+      if(lines.length<2) throw new Error('내용이 너무 적습니다.');
+      const hdrs = csvLine(lines[0]);
+      const rows = lines.slice(1).filter(l=>l.trim()).map(l=>{
+        const cells=csvLine(l), obj={};
+        hdrs.forEach((h,i)=>{ obj[h]=(cells[i]||'').trim(); });
+        return obj;
+      });
+      const DAYS=['월요일','화요일','수요일','목요일','금요일'];
+      const TMAP={'조식':'아침','석식':'저녁'};
+      const db={};
+      DAYS.forEach(dayName=>{
+        const dr=rows.filter(r=>r.day===dayName||r['요일']===dayName);
+        if(!dr.length) return;
+        const dayObj={날짜:dr[0].date||dr[0]['날짜']||'', 아침:null, 점심:{}, 저녁:null};
+        dr.forEach(r=>{
+          const mt  = r.meal_type||r['식사구분']||'';
+          const mStr= r.menu||r['메뉴']||'';
+          const tStr= r.time||r['시간']||'';
+          const items= mStr.replace(/[\d,]+원/g,'').split(/[\n\r,]+/).map(s=>s.trim()).filter(Boolean);
+          const pkt  = {메뉴:items,시간:tStr};
+          const mapped=TMAP[mt]||mt;
+          if(mapped==='아침') dayObj.아침=pkt;
+          else if(mapped==='저녁') dayObj.저녁=pkt;
+          else if(mt) dayObj.점심[mt]=pkt;
+        });
+        db[dayName]=dayObj;
+      });
+      return db;
     };
 
-    function renderMeals(containerId, meals) {
-      const container = document.getElementById(containerId);
-      meals.forEach(meal => {
-        const card = document.createElement('div');
-        card.className = 'meal-card ' + meal.type;
-        card.innerHTML = `
-          <div class="meal-header">
-            <span class="meal-title">${meal.emoji} ${meal.title}</span>
-            <span class="meal-time">${meal.time}</span>
-          </div>
-          <div class="meal-items">${meal.items.replace(/\n/g, '<br>')}</div>
-        `;
-        container.appendChild(card);
-      });
-    }
-    renderMeals('dorm-meals', dormMeals);
-    renderMeals('staff-meals', staffMeals);
-
-    // 추천 카드 업데이트
-    const pref = JSON.parse(localStorage.getItem('preference')) || null;
-    function updateRecommend(slideIdx) {
-      const recommendEl = document.getElementById('recommend-content');
-      const meal = recommendations[slideIdx];
-      if (!meal) {
-        recommendEl.innerHTML = pref
-          ? '<div class="recommend-empty">식당 탭으로 이동하면 추천 메뉴를 볼 수 있어요.</div>'
-          : '<div class="recommend-empty">메뉴 선호도를 설정해주세요.</div>';
-        return;
-      }
-      recommendEl.innerHTML = `
-        <div class="recommend-sub">${meal.emoji} ${meal.title} ${meal.time}</div>
-        <div class="meal-items-sm">${meal.items.replace(/\n/g, '<br>')}</div>
-      `;
-    }
-    updateRecommend(0);
-
-    // 선호도 표시
-    const prefBody = document.getElementById('pref-body');
-    if (!pref) {
-      prefBody.innerHTML = '<div class="pref-empty">선호도를 설정하면 맞춤 메뉴를 추천해드려요!</div>';
-    } else {
-      let html = '';
-      if (pref.likedTypes && pref.likedTypes.length > 0)
-        html += `<div style="margin-bottom:10px;"><span style="font-size:13px;color:#555;">선호 유형</span><br>${pref.likedTypes.map(v => `<span class="chip-inline">${v}</span>`).join('')}</div>`;
-      if (pref.likedCuisines && pref.likedCuisines.length > 0)
-        html += `<div style="margin-bottom:10px;"><span style="font-size:13px;color:#555;">좋아하는 메뉴</span><br>${pref.likedCuisines.map(v => `<span class="chip-inline">${v}</span>`).join('')}</div>`;
-      if (pref.dislikedCuisines && pref.dislikedCuisines.length > 0)
-        html += `<div style="margin-bottom:10px;"><span style="font-size:13px;color:#555;">싫어하는 메뉴</span><br>${pref.dislikedCuisines.map(v => `<span class="chip-inline dislike">${v}</span>`).join('')}</div>`;
-      if (pref.allergies && pref.allergies.length > 0)
-        html += `<div style="margin-bottom:10px;"><span style="font-size:13px;color:#555;">알레르기</span><br>${pref.allergies.map(v => `<span class="chip-inline dc">${v}</span>`).join('')}</div>`;
-
-      // 이용 불가 시간대
-      const timeEmoji = { 아침: '🌅', 점심: '☀️', 저녁: '🌙' };
-      if (pref.unavailableTime) {
-        html += `<div style="margin-bottom:10px;"><span style="font-size:13px;color:#555;">이용 불가 시간대</span><br><span class="chip-inline unavailable">${timeEmoji[pref.unavailableTime] || ''} ${pref.unavailableTime}</span></div>`;
-      }
-
-      prefBody.innerHTML = html || '<div class="pref-empty">설정된 선호도가 없습니다.</div>';
-    }
-
-    // 슬라이더
-    let currentSlide = 0;
-    const totalSlides = 3;
-
-    function goToSlide(idx) {
-      if (idx < 0 || idx >= totalSlides) return;
-      currentSlide = idx;
-      document.getElementById('slider').style.transform = `translateX(-${idx * 33.333}%)`;
-      for (let i = 0; i < totalSlides; i++) {
-        document.getElementById('dot-' + i).classList.toggle('active', i === idx);
-      }
-      updateRecommend(idx);
-    }
-
-    // 터치 스와이프
-    let touchStartX = 0;
-    const sliderWrap = document.querySelector('.slider-wrap');
-    sliderWrap.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
-    sliderWrap.addEventListener('touchend', e => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) < 50) return;
-      if (diff > 0) goToSlide(currentSlide + 1);
-      else goToSlide(currentSlide - 1);
+    const tryRead = (enc) => new Promise((ok,ng)=>{
+      const r=new FileReader();
+      r.onload=ev=>ok(ev.target.result);
+      r.onerror=()=>ng(new Error('읽기 실패'));
+      r.readAsText(file, enc);
     });
 
-    // 마우스 스와이프
-    let mouseStartX = 0, isDragging = false;
-    sliderWrap.addEventListener('mousedown', e => { mouseStartX = e.clientX; isDragging = true; });
-    sliderWrap.addEventListener('mouseup', e => {
-      if (!isDragging) return;
-      isDragging = false;
-      const diff = mouseStartX - e.clientX;
-      if (Math.abs(diff) < 50) return;
-      if (diff > 0) goToSlide(currentSlide + 1);
-      else goToSlide(currentSlide - 1);
-    });
-    sliderWrap.addEventListener('mouseleave', () => { isDragging = false; });
+    tryRead('UTF-8').then(text=>{
+      // 간단한 깨짐 감지: 한글 자음/모음 직접 포함 여부
+      const hasKorean = /[가-힣]/.test(text);
+      if(!hasKorean) return tryRead('EUC-KR');
+      return text;
+    }).then(text=>{
+      const db=parse(text);
+      localStorage.setItem('inha_menu_db', JSON.stringify(db));
+      document.getElementById('csv-status-label').innerHTML=
+        `✅ ${esc(file.name)}<br>${Object.keys(db).length}일치 로드 완료`;
+      renderMenus();
+      updateRecommend();
+      toast('✅ 식단 데이터 연동 완료!');
+    }).catch(err=>toast('❌ CSV 오류: '+err.message));
+  }
 
-    // 드롭다운
-    function toggleDropdown() {
-      document.getElementById('dropdown').classList.toggle('show');
+  function csvLine(line) {
+    const cells=[]; let cur='', inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
+      else if(c===','&&!inQ){ cells.push(cur); cur=''; }
+      else cur+=c;
     }
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.header-right')) {
-        document.getElementById('dropdown').classList.remove('show');
-      }
-    });
+    cells.push(cur);
+    return cells.map(c=>c.trim());
+  }
 
-    // 업로드 모달
-    function openUploadModal() {
-      document.getElementById('dropdown').classList.remove('show');
-      document.getElementById('upload-modal').classList.add('show');
-    }
-    function closeUploadModal() {
-      document.getElementById('upload-modal').classList.remove('show');
-      document.getElementById('upload-area').classList.remove('has-image');
-      document.getElementById('preview-img').src = '';
-      document.getElementById('file-input').value = '';
-      document.getElementById('confirm-btn').disabled = true;
-    }
-    function closeModalOutside(e) { if (e.target === document.getElementById('upload-modal')) closeUploadModal(); }
-    function triggerFileInput() { document.getElementById('file-input').click(); }
-    function handleFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        document.getElementById('preview-img').src = ev.target.result;
-        document.getElementById('upload-area').classList.add('has-image');
-        document.getElementById('confirm-btn').disabled = false;
-      };
-      reader.readAsDataURL(file);
-    }
-    function confirmUpload() {
-      alert('업로드 완료! 메뉴 자동 분석 기능은 추후 연결 예정입니다.');
-      closeUploadModal();
-    }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
   </script>
 </body>
 </html>
